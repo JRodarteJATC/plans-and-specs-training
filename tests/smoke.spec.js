@@ -437,3 +437,16 @@ test("practice plans: if the download is blocked, the app explains and lets you 
   await expect.poll(() => page.evaluate(() => PT.store.list("sheets").length), { timeout: 150000 }).toBe(11);
   expect(page.errors.filter((e) => !/Failed to fetch|ERR_FAILED/.test(e))).toEqual([]);
 });
+
+test("class roster: when the instructor renames a roster number, the Team page shows the new name (no duplicate)", async ({ page }) => {
+  await page.goto("/#/team");
+  await expect(page.locator(".person", { hasText: "Adrian Castillo" }).locator(".roster-no")).toHaveText("#1");
+  const before = await page.locator(".person").count();
+  await page.route("**/js/roster.js*", async (r) => { const res = await r.fetch(); r.fulfill({ response: res, body: (await res.text()).replace('[1, "Adrian Castillo"', '[1, "Pat Sample"') }); });
+  await page.reload();
+  await expect(page.locator(".person", { hasText: "Pat Sample" }).locator(".roster-no")).toHaveText("#1");
+  await expect(page.locator(".person", { hasText: "Pat Sample" })).toContainText("pat.sample.roofer27@gmail.com");
+  await expect(page.locator(".person", { hasText: "Adrian Castillo" })).toHaveCount(0);
+  await expect(page.locator(".person")).toHaveCount(before);
+  expect(page.errors).toEqual([]);
+});

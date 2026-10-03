@@ -1,9 +1,9 @@
 /* Class roster, instructor contact and company list.
-   Practice roster for 3A – Intro to Plans, Fresno Central Valley (Local Union #27). All names are made up.
-   Edit this file to change the class list for the next class.                               */
+   Practice roster for 3A – Intro to Plans, Fresno Central Valley (Local Union #27). Names are made up unless an
+   apprentice chose to use their own (the instructor changes names with "Change Roster Names.command").                               */
 PT.roster = (() => {
-  // NOTE: every apprentice name, company, e-mail and phone number in this training app is MADE UP.
-  const NOTE = "Names, companies, e-mails and phone numbers in this training app are made up for practice.";
+  // NOTE: companies, e-mails and phone numbers in this training app are MADE UP; so are the names, unless an apprentice chose their own.
+  const NOTE = "Companies, e-mails and phone numbers in this training app are made up for practice. Names are practice names too, unless an apprentice chose to use their own.";
   const INSTRUCTOR = { name: "Juan Rodarte", role: "Instructor", company: "Central Valley JATC", email: "jrodarte@centralvalleyjatc.com", phone: "559-555-0127" };
 
   // Instructor mode in the apprentice app needs a passcode (only its SHA-256 is stored here; the passcode is in the

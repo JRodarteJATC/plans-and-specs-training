@@ -55,8 +55,13 @@ PT.store = (() => {
       // the class roster, so apprentices can assign tasks to classmates
       for (const a of PT.roster.APPRENTICES) {
         const t = have.find((t) => t.name === a.name);
-        if (!t) s.team.push({ ...a, id: uid("usr"), projectId: p.id });
-        else if (t.no == null) t.no = a.no; // roster number added later
+        if (!t) {
+          // the instructor gave this roster number a new name: rename the old entry instead of listing both
+          // (not when the old name is the one this device's apprentice is working under)
+          const old = have.find((x) => x.no === a.no && x.role === "Apprentice" && x.name !== s.user?.name && !PT.roster.find(x.name));
+          if (old) { if (!old.email || old.email === PT.roster.practiceEmail(old.name)) old.email = a.email; old.name = a.name; }
+          else s.team.push({ ...a, id: uid("usr"), projectId: p.id });
+        } else if (t.no == null) t.no = a.no; // roster number added later
       }
     }
   }
