@@ -36,6 +36,7 @@ PT.app = (() => {
       <div class="grid2">
       <section class="card"><h2>What is this?</h2>
         <p><b>Plan Room Trainer</b> is a practice version of construction plan-management apps like PlanGrid / Autodesk Build, Procore Drawings, Fieldwire and Bluebeam. It uses a fictional drawing set so apprentices can learn the workflow without touching a real project.</p>
+        <p class="muted small">This is an independent training tool. It is not affiliated with or endorsed by Autodesk, Procore, Fieldwire or Bluebeam. PlanGrid, Autodesk Build and the other product names are trademarks of their owners.</p>
         <p>Everything is saved <b>in this browser only</b>. Use Settings → Export backup to hand work in or move to another computer.</p>
         <p>Lessons, labs and quizzes are in the <code>docs/</code> folder of the GitHub repository.</p></section>
       <section class="card"><h2>Sheet viewer shortcuts</h2>

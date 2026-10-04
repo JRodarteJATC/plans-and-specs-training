@@ -26,7 +26,7 @@ Not covered here (hands-on in the shop): pavers & pedestals, laser operation, th
 
 ## Answer keys
 Answer keys are **not** in this public repo. They live in the separate private repo
-**`jatc-plangrid-instructor-keys`** so apprentices can't look them up. Ask the program
+**`plans-and-specs-instructor-keys`** so apprentices can't look them up. Ask the program
 coordinator for access.
 
 ## Setup (one time, ~10 minutes)
@@ -71,7 +71,7 @@ Almost everything is graded automatically.
    their work in by itself. Turning in again replaces the older copy.
    *No internet?* **Settings → Export backup (.json)** and send you the file (email, LMS, USB).
 3. Open the **Instructor Dashboard** (`…/instructor.html`) and click **☁ Load turned-in work** – everyone who
-   turned in loads at once. Drop in **`grading-key.json`** once (private `jatc-plangrid-instructor-keys` repo;
+   turned in loads at once. Drop in **`grading-key.json`** once (private `plans-and-specs-instructor-keys` repo;
    it's remembered in that browser) and any backup files you were e-mailed.
 4. The dashboard scores:
 
@@ -107,7 +107,7 @@ choices in their own shuffled order, so "the answer is B" can't be shared.
 browser – click **Forget key** when you're done on any shared computer.
 
 ## 3A PlanGrid Project
-Hand-out: [docs/labs/3a-plangrid-project.md](../docs/labs/3a-plangrid-project.md). Apprentices can use the
+Hand-out: [docs/labs/3a-project.md](../docs/labs/3a-project.md). Apprentices can use the
 sample project or create their own (**Settings → New project**, **Sheets → Upload** real plans).
 **Juan Rodarte (Instructor)** is on the team of every project automatically, so they can assign RFIs to you
 and add you as a watcher. The dashboard grades the apprentice's best project (column **3A Proj**); labs are
@@ -169,7 +169,7 @@ A 20-question exercise on a real bid set – *AT&T Upper Roof Replacement, 217 W
 
 - **The plans are not on the public site.** Every sheet is stamped *"Proprietary AT&T information – not
   for general use or disclosure outside AT&T"*, so the PDF lives in the private
-  `jatc-plangrid-instructor-keys` repo (`plans/`). Hand it out through your LMS, a shared drive or
+  `plans-and-specs-instructor-keys` repo (`plans/`). Hand it out through your LMS, a shared drive or
   print it; apprentices load it in the app with **Sheets → Upload**. Don't post it publicly.
 - Apprentices answer in the app (**Quizzes & Worksheets → AT&T Reroof Blueprint Exercise**) or on the
   printable [worksheet](../docs/quizzes/att-reroof-exercise.md).
@@ -186,7 +186,7 @@ roof photos on A502 are JATC photos, with some equipment added digitally for tra
   1. **In the app (easiest):** **Sheets → 📐 Load practice plans**. One tap downloads the set from the training
      site and adds all 11 sheets as their own project (*Training Center Roof Replacement (practice plans)*).
      In an empty team project the sheets go into that project, so every teammate taps the button once.
-  2. **PDF link / QR code:** `…/jatc-plangrid-training/plans/jatc-training-center-practice-plans.pdf`
+  2. **PDF link / QR code:** `…/plans-and-specs-training/plans/jatc-training-center-practice-plans.pdf`
      (on the QR code sheet). Apprentices can also load it with **Sheets → Upload**.
   3. **Hand out / print:** e-mail or LMS the PDF, or print it on 36"×24" (ARCH D) – it is drawn to scale at that size.
 - **Zooming in stays sharp.** Loaded with the 📐 button, the practice sheets (and the built-in sample sheets) are

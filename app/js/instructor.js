@@ -219,7 +219,7 @@
   const howTo = () => `<div class="card"><h2>How grading works</h2><ol>
       <li>Apprentices do the labs in the app and answer <b>Quizzes & Worksheets</b> in the app, then click <b>Settings → Export backup</b>.</li>
       <li>They send you the <code>.json</code> file (email, shared Drive/OneDrive folder, LMS upload, or USB).</li>
-      <li>Drop all the files here together with <code>grading-key.json</code> (from the private <code>jatc-plangrid-instructor-keys</code> repo).</li>
+      <li>Drop all the files here together with <code>grading-key.json</code> (from the private <code>plans-and-specs-instructor-keys</code> repo).</li>
       <li>Everything is scored automatically: 6 quizzes, 7 labs (worksheets + app work), the written and practical final, and 32 training missions.</li>
       <li>👁 marks short written answers graded by keywords – click the name to check them. Type an override for any score if you disagree.</li>
       <li><b>Export gradebook CSV</b> for your records or LMS.</li></ol></div>`;

@@ -12,7 +12,7 @@ It has two parts:
    Apprentices can make mistakes here without touching a real project.
 2. **Curriculum** (`docs/`, `instructor/`) – 8 lessons, hands-on labs, quizzes, a final exam,
    an instructor guide and a skills checklist. **Answer keys are kept in a separate private repo**
-   (`jatc-plangrid-instructor-keys`) so apprentices can't look them up.
+   (`plans-and-specs-instructor-keys`) so apprentices can't look them up.
 
 > **Not affiliated with Autodesk.** PlanGrid, Autodesk Build, Procore, Fieldwire and Bluebeam are
 > trademarks of their owners. This is an independent training tool. The drawings are fictional
@@ -34,7 +34,7 @@ Details and 3C Waterproofing Specs & Details. See the instructor guide for the f
 1. Push this repo to GitHub.
 2. Go to **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 3. The included workflow publishes the app. Every apprentice uses the same link, e.g.
-   `https://<your-org>.github.io/jatc-plangrid-training/`.
+   `https://<your-org>.github.io/plans-and-specs-training/`.
 
 **Option C – local web server**
 ```bash
@@ -113,12 +113,12 @@ A deliberate conflict is built into the set for the RFI lab (Lab 5).
 | 6 | [Photos, daily reports & revisions](docs/modules/06-photos-reports-revisions.md) | [Lab 6](docs/labs/lab-06-field-day.md) | [Quiz 6](docs/quizzes/quiz-06.md) |
 | 7 | [Closeout & as-builts](docs/modules/07-closeout-and-as-builts.md) | [Lab 7](docs/labs/lab-07-as-builts.md) | [Final exam](docs/quizzes/final-exam.md) |
 | 8 | [Moving to the real app](docs/modules/08-moving-to-the-real-app.md) | – | – |
-| ★ | **3A PlanGrid Project** – daily reports, time sheets, material docs, tasks & RFIs (graded automatically) | [3A Project](docs/labs/3a-plangrid-project.md) | – |
+| ★ | **3A PlanGrid Project** – daily reports, time sheets, material docs, tasks & RFIs (graded automatically) | [3A Project](docs/labs/3a-project.md) | – |
 | ★ | Real plan set: AT&T Upper Roof Replacement (plans from your instructor → Sheets → Upload) | – | [AT&T Reroof Blueprint Exercise](docs/quizzes/att-reroof-exercise.md) |
 | ★ | Practice plan set: Training Center Roof Replacement (Sheets → 📐 Load practice plans, or the [PDF](app/plans/jatc-training-center-practice-plans.pdf)) | – | [Practice Plan Exercise](docs/quizzes/practice-plans-exercise.md) |
 
 Plus: [Glossary](docs/glossary.md) · [Skills checklist](docs/skills-checklist.md) ·
-[Instructor guide](instructor/instructor-guide.md) · Answer keys: private repo `jatc-plangrid-instructor-keys`
+[Instructor guide](instructor/instructor-guide.md) · Answer keys: private repo `plans-and-specs-instructor-keys`
 
 Suggested pace: **one 3-hour class** (modules 1–4) + **one 3-hour class** (modules 5–8), or one
 module per week in a lab rotation.

@@ -1,5 +1,5 @@
 {
-  "name": "jatc-plangrid-training",
+  "name": "plans-and-specs-training",
   "version": "1.0.0",
   "private": true,
   "description": "Practice app and curriculum for teaching apprentices construction plan-management software (PlanGrid / Autodesk Build style).",

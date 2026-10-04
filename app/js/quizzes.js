@@ -1,6 +1,6 @@
 /* In-app quizzes, worksheets and the written final.
    Only the QUESTIONS are here. The answer key lives in the private
-   jatc-plangrid-instructor-keys repo (grading-key.json) and is loaded into the
+   plans-and-specs-instructor-keys repo (grading-key.json) and is loaded into the
    Instructor Dashboard, so apprentices can't read the answers in this code.
 
    Question types:

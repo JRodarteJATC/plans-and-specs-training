@@ -126,7 +126,7 @@ PT.views = (() => {
   }
 
   // The posted copy on GitHub Pages – used when the app is opened from a file, a different site, or the first try drops.
-  const PRACTICE_ABS = "https://jrodartejatc.github.io/jatc-plangrid-training/plans/jatc-training-center-practice-plans.pdf";
+  const PRACTICE_ABS = "https://jrodartejatc.github.io/plans-and-specs-training/plans/jatc-training-center-practice-plans.pdf";
   async function downloadPractice() {
     const urls = [];
     try { if (location.protocol !== "file:") urls.push(new URL(PRACTICE.url, location.href).href); } catch { }
