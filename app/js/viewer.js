@@ -105,6 +105,8 @@ PT.viewer = (() => {
     img.onload = () => { fit(); renderOverlay(); };
     img.src = srcOf(V.ver);
     sizeStage();
+    const ss = sharpSource(V);
+    if (ss && ss.kind === "pdf") PT.views.practicePdf().then(scheduleSharp, () => { }); // have the drawing ready before the first zoom
 
     $("#verSel", root).onchange = (e) => { location.hash = `#/sheet/${sheet.id}/v/${e.target.value}`; };
     $("#cmpBtn", root).onclick = openCompare;
@@ -134,6 +136,82 @@ PT.viewer = (() => {
   function applyTransform() {
     $("#stage", V.root).style.transform = `translate(${V.tx}px, ${V.ty}px) scale(${V.z})`;
     $("#zoomInd", V.root).textContent = Math.round(V.z * 100) + "%";
+    scheduleSharp();
+  }
+
+  /* ================= sharp layer =================
+     The sheet picture has a fixed number of pixels, so zooming in used to blur it. When the app can redraw
+     the drawing itself (built-in sample sheets are SVG, the practice plans are a PDF kept on the device),
+     the part on screen is redrawn at the zoom in use and laid over the picture, under the markups.
+     Sheet units, markups and measurements are not affected. Uploaded sheets keep their picture. */
+  function sharpSource(v) {
+    if (v.ver.src.kind === "sample") return { kind: "svg", key: v.ver.src.key };
+    const page = PT.views && PT.views.practicePage ? PT.views.practicePage(v.sheet, v.ver) : 0;
+    return page ? { kind: "pdf", page } : null;
+  }
+  function dropSharp(v = V) {
+    if (!v) return;
+    v.sharpTok = (v.sharpTok || 0) + 1;
+    try { v.sharpTask && v.sharpTask.cancel(); } catch { }
+    v.sharpTask = null;
+    if (v.sharp) { v.sharp.el.remove(); v.sharp.el.width = v.sharp.el.height = 0; v.sharp = null; }
+  }
+  function scheduleSharp() {
+    const v = V; if (!v) return;
+    clearTimeout(v.sharpT);
+    v.sharpT = setTimeout(() => renderSharp(v).catch((e) => { if (e && e.name !== "RenderingCancelledException") console.warn("sharp layer:", e); }), 160);
+  }
+  async function renderSharp(v) {
+    if (v !== V || !document.contains(v.root)) return;
+    const wrap = $("#canvasWrap", v.root), img = $("#sheetImg", v.root); if (!wrap || !img) return;
+    const src = sharpSource(v);
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    const base = src && src.kind === "pdf" && img.naturalWidth ? img.naturalWidth / v.ver.w : 1; // picture pixels per sheet unit
+    // practice plans are always redrawn from the PDF (their stored picture is only about 67 dpi); sample sheets only when zoomed in
+    const always = src && src.kind === "pdf";
+    if (!src || v.compare || (!always && v.z * dpr <= base * 1.1)) return dropSharp(v);
+    // the part of the sheet on screen, in sheet units, plus a margin so small pans stay sharp
+    const r = wrap.getBoundingClientRect();
+    const vx0 = Math.max(0, -v.tx / v.z), vy0 = Math.max(0, -v.ty / v.z);
+    const vx1 = Math.min(v.ver.w, (r.width - v.tx) / v.z), vy1 = Math.min(v.ver.h, (r.height - v.ty) / v.z);
+    if (vx1 - vx0 < 1 || vy1 - vy0 < 1) return dropSharp(v);
+    const mx = (vx1 - vx0) * 0.25, my = (vy1 - vy0) * 0.25;
+    const x0 = Math.max(0, vx0 - mx), y0 = Math.max(0, vy0 - my), x1 = Math.min(v.ver.w, vx1 + mx), y1 = Math.min(v.ver.h, vy1 + my);
+    let k = v.z * dpr; // canvas pixels per sheet unit
+    const MAXPX = 7e6, area = (x1 - x0) * (y1 - y0) * k * k; // stays inside phone and tablet canvas limits
+    if (area > MAXPX) k *= Math.sqrt(MAXPX / area);
+    if (!always && k <= base * 1.1) return dropSharp(v);
+    const s = v.sharp;
+    if (s && s.x0 <= vx0 + 0.5 && s.y0 <= vy0 + 0.5 && s.x1 >= vx1 - 0.5 && s.y1 >= vy1 - 0.5 && s.k >= k * 0.95 && s.k <= k * 1.6) return; // still good
+    const tok = (v.sharpTok = (v.sharpTok || 0) + 1);
+    try { v.sharpTask && v.sharpTask.cancel(); } catch { }
+    v.sharpTask = null;
+    const cw = Math.max(1, Math.round((x1 - x0) * k)), ch = Math.max(1, Math.round((y1 - y0) * k));
+    const c = document.createElement("canvas"); c.className = "sharp"; c.width = cw; c.height = ch;
+    const ctx = c.getContext("2d"); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cw, ch);
+    if (src.kind === "svg") {
+      const W = PT.samples.W, H = PT.samples.H;
+      const txt = PT.samples.svgText(src.key).replace(`width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"`, `width="${cw}" height="${ch}" viewBox="${x0} ${y0} ${x1 - x0} ${y1 - y0}"`);
+      const im = await loadImg("data:image/svg+xml;charset=utf-8," + encodeURIComponent(txt));
+      if (tok !== v.sharpTok) return;
+      ctx.drawImage(im, 0, 0, cw, ch);
+    } else {
+      const doc = await PT.views.practicePdf(); if (tok !== v.sharpTok) return;
+      const page = await doc.getPage(src.page); if (tok !== v.sharpTok) return;
+      const vp0 = page.getViewport({ scale: 1 });
+      if (Math.abs(vp0.width / vp0.height - v.ver.w / v.ver.h) > 0.01) return; // not the drawing this sheet was made from
+      const vp = page.getViewport({ scale: (v.ver.w / vp0.width) * k, offsetX: -x0 * k, offsetY: -y0 * k });
+      v.sharpTask = page.render({ canvasContext: ctx, viewport: vp });
+      await v.sharpTask.promise;
+      if (tok !== v.sharpTok) return;
+      v.sharpTask = null;
+    }
+    if (v !== V || !document.contains(v.root) || v.compare) return;
+    Object.assign(c.style, { left: x0 + "px", top: y0 + "px", width: x1 - x0 + "px", height: y1 - y0 + "px" });
+    const old = v.sharp;
+    $("#stage", v.root).insertBefore(c, $("#overlay", v.root));
+    v.sharp = { el: c, x0, y0, x1, y1, k };
+    if (old) { old.el.remove(); old.el.width = old.el.height = 0; }
   }
   function fit() {
     const wrap = $("#canvasWrap", V.root); if (!wrap) return;
@@ -507,6 +585,7 @@ PT.viewer = (() => {
     ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height);
     ctx.setTransform(k * mag, 0, 0, k * mag, k * (D / 2 - pt[0] * mag), k * (D / 2 - pt[1] * mag)); // sheet units -> loupe px
     try { ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, 0, 0, V.ver.w, V.ver.h); } catch { }
+    if (V.sharp && !V.compare) try { const s = V.sharp; ctx.drawImage(s.el, s.x0, s.y0, s.x1 - s.x0, s.y1 - s.y0); } catch { }
     // what is being drawn / adjusted
     const m = drawShape();
     if (m?.points?.length) {
@@ -829,7 +908,7 @@ PT.viewer = (() => {
 
   function openCompare() {
     if (V.compare) { // exit compare
-      V.compare = null; $("#sheetImg", V.root).src = srcOf(V.ver); $("#cmpLegend", V.root).classList.add("hidden"); $("#cmpBtn", V.root).classList.remove("active"); return;
+      V.compare = null; $("#sheetImg", V.root).src = srcOf(V.ver); $("#cmpLegend", V.root).classList.add("hidden"); $("#cmpBtn", V.root).classList.remove("active"); scheduleSharp(); return;
     }
     const others = V.sheet.versions.map((v, k) => [k, v]).filter(([k]) => k !== V.verIdx);
     modal({
@@ -843,7 +922,7 @@ PT.viewer = (() => {
         toast("Building overlay…");
         try {
           const url = await overlayCompare(older, newer);
-          V.compare = { url }; $("#sheetImg", V.root).src = url; $("#cmpBtn", V.root).classList.add("active");
+          V.compare = { url }; dropSharp(); $("#sheetImg", V.root).src = url; $("#cmpBtn", V.root).classList.add("active");
           const lg = $("#cmpLegend", V.root); lg.classList.remove("hidden");
           lg.innerHTML = `<b>Overlay</b> <span class="lg red">■ Removed (Rev ${esc(older.rev)} only)</span> <span class="lg blue">■ Added (Rev ${esc(newer.rev)} only)</span> <span class="lg gray">■ Unchanged</span> <button class="btn btn-sm" id="cmpExit">Exit compare</button>`;
           $("#cmpExit", lg).onclick = openCompare;

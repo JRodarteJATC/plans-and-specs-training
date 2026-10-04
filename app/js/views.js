@@ -116,7 +116,7 @@ PT.views = (() => {
     if (practiceBusy) return;
     practiceBusy = true;
     try {
-      toast("Downloading the practice plans (about 9 MB) – this can take a minute…");
+      toast("Downloading the practice plans (about 2 MB)…");
       const blob = await downloadPractice();
       await addPracticePages(new File([blob], "practice-plans.pdf", { type: "application/pdf" }), target);
     } catch (e) {
@@ -144,9 +144,40 @@ PT.views = (() => {
     throw last || new Error("download failed");
   }
 
+  /* The practice-plan PDF is kept on this device so the viewer can redraw a sheet sharp at any zoom
+     (the sheet picture alone has a fixed number of pixels). Devices that loaded the plans before this
+     was added download the PDF again, quietly, the first time a practice sheet is opened. */
+  const PRACTICE_KEY = "practice-pdf";
+  let practiceDoc = null, practiceRetryAt = 0;
+  function practicePdf() {
+    if (practiceDoc) return practiceDoc;
+    if (Date.now() < practiceRetryAt) return Promise.reject(new Error("practice PDF not available yet"));
+    const p = (async () => {
+      let buf = await store.kvGet(PRACTICE_KEY);
+      if (!buf || !(buf.byteLength > 100000)) {
+        buf = await (await downloadPractice()).arrayBuffer();
+        store.kvPut(PRACTICE_KEY, buf.slice(0));
+      }
+      const pdfjs = await loadPdfJs();
+      const doc = await pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)) }).promise;
+      if (doc.numPages !== PRACTICE.sheets.length) throw new Error("not the practice plan set");
+      return doc;
+    })();
+    practiceDoc = p;
+    p.catch((e) => { console.warn("practice PDF for sharp zoom:", e); if (practiceDoc === p) practiceDoc = null; practiceRetryAt = Date.now() + 60000; });
+    return p;
+  }
+  // which page of the practice PDF a sheet version was made from (0 = not a practice sheet)
+  function practicePage(sheet, ver) {
+    if (!sheet || !ver || !String(sheet.id).startsWith("pp-") || !String(ver.id).startsWith("ppv-")) return 0;
+    const id = String(ver.id), number = id.slice(id.lastIndexOf("-") + 1);
+    return PRACTICE.sheets.findIndex(([n]) => n === number) + 1;
+  }
+
   async function addPracticePages(file, target) {
     const s = store.get();
     const pages = await fileToPages(file);
+    if (pages.length === PRACTICE.sheets.length) { try { await store.kvPut(PRACTICE_KEY, await file.arrayBuffer()); practiceDoc = null; practiceRetryAt = 0; } catch (e) { console.warn(e); } }
     const p = target || store.newProject(PRACTICE.name, PRACTICE.number, PRACTICE.address);
     if (!p.team) p.practicePlans = true;
     s.activeProjectId = p.id;
@@ -167,7 +198,7 @@ PT.views = (() => {
     const { el } = modal({ title: "Practice plans didn't download", cancelLabel: "Close",
       body: `<p>${pdfErr ? esc(err.message) : "The download was blocked or the connection dropped (" + esc((err && err.message) || "error") + ")."}</p>
         <p>Tap <b>Try again</b> first – on school or jobsite Wi-Fi a second try often works. If it still fails, do it in two steps:</p>
-        <ol><li><a class="btn" href="${PRACTICE_ABS}" target="_blank" rel="noopener" download="JATC Practice Plans.pdf">Open / save the PDF</a> (about 9 MB – wait until it finishes)</li>
+        <ol><li><a class="btn" href="${PRACTICE_ABS}" target="_blank" rel="noopener" download="JATC Practice Plans.pdf">Open / save the PDF</a> (about 2 MB – wait until it finishes)</li>
         <li style="margin-top:8px"><button type="button" class="btn btn-primary" id="ppPick">Choose the saved PDF</button></li></ol>`,
       extraButtons: `<button type="button" class="btn" id="ppRetry">Try again</button>` });
     el.classList.add("pp-fallback");
@@ -948,5 +979,5 @@ PT.views = (() => {
 
   const route = () => PT.app.route();
 
-  return { dashboard, sheets, issues, punch: (root) => issues(root, true), rfis, submittals, photos, reports, documents, team, activity, settings, search, issueForm, rfiForm, addPhoto, photoViewer, uploadSheets };
+  return { dashboard, sheets, issues, punch: (root) => issues(root, true), rfis, submittals, photos, reports, documents, team, activity, settings, search, issueForm, rfiForm, addPhoto, photoViewer, uploadSheets, practicePdf, practicePage };
 })();

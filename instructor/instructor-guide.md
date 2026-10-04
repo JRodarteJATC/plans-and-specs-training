@@ -189,6 +189,11 @@ roof photos on A502 are JATC photos, with some equipment added digitally for tra
   2. **PDF link / QR code:** `…/jatc-plangrid-training/plans/jatc-training-center-practice-plans.pdf`
      (on the QR code sheet). Apprentices can also load it with **Sheets → Upload**.
   3. **Hand out / print:** e-mail or LMS the PDF, or print it on 36"×24" (ARCH D) – it is drawn to scale at that size.
+- **Zooming in stays sharp.** Loaded with the 📐 button, the practice sheets (and the built-in sample sheets) are
+  redrawn from the drawing itself at whatever zoom is on screen, so small text and hatching stay crisp. Nothing
+  changes for markups or measurements. A device that loaded the plans before this was added fetches the PDF
+  again by itself (about 2 MB) the first time a practice sheet is opened. Sheets an apprentice **uploads** are
+  stored as a picture, so they still soften when zoomed far in.
 - Apprentices answer under **Quizzes & Worksheets → Training Center Reroof – Practice Plan Exercise** (or the
   printable [worksheet](../docs/quizzes/practice-plans-exercise.md)). The dashboard grades it in the **Practice**
   column once `grading-key.json` is loaded.

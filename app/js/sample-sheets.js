@@ -479,12 +479,14 @@ PT.samples = (() => {
   const roofLinks = [{ x: X(50), y: Y(0) - 60, r: 28, target: "R-501" }, { x: X(40), y: Y(38.5), r: 28, target: "R-501" }, { x: X(31), y: Y(9.5), r: 28, target: "R-501" }, { x: X(22), y: Y(17), r: 28, target: "R-501" }];
   sheets[1].links = roofLinks; sheets[2].links = roofLinks;
 
-  const cache = {};
+  const cache = {}, textCache = {};
+  // the drawing itself (SVG text) – the viewer redraws the part on screen from this when zoomed in
+  function svgText(key) {
+    if (!textCache[key]) textCache[key] = sheets.find((s) => s.key === key).svg().replace("<defs>", "<defs>" + defs2);
+    return textCache[key];
+  }
   function dataUrl(key) {
-    if (!cache[key]) {
-      const sh = sheets.find((s) => s.key === key);
-      cache[key] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(sh.svg().replace("<defs>", "<defs>" + defs2));
-    }
+    if (!cache[key]) cache[key] = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText(key));
     return cache[key];
   }
 
@@ -498,5 +500,5 @@ PT.samples = (() => {
     roofBox: { x1: X(0), y1: Y(0), x2: X(100), y2: Y(64) },
   };
 
-  return { W, H, PPI, PROJECT, sheets, dataUrl, answers, scale: S, unitsPerFt };
+  return { W, H, PPI, PROJECT, sheets, dataUrl, svgText, answers, scale: S, unitsPerFt };
 })();

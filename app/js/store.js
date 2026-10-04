@@ -26,6 +26,21 @@ PT.store = (() => {
       });
     } catch { return null; }
   }
+  /* Big files (the practice-plan PDF) are kept beside the saved state, not in it, so saving stays fast
+     and they are never exported or synced. */
+  async function kvPut(key, value) {
+    try {
+      const db = await idb();
+      await new Promise((res, rej) => { const tx = db.transaction(STORE, "readwrite"); tx.objectStore(STORE).put(value, key); tx.oncomplete = res; tx.onerror = tx.onabort = () => rej(tx.error); });
+      return true;
+    } catch (e) { console.warn("Could not keep", key, e); return false; }
+  }
+  async function kvGet(key) {
+    try {
+      const db = await idb();
+      return await new Promise((res) => { const r = db.transaction(STORE).objectStore(STORE).get(key); r.onsuccess = () => res(r.result ?? null); r.onerror = () => res(null); });
+    } catch { return null; }
+  }
   let saveTimer = null;
   let readOnly = false; // set while the Instructor Dashboard is looking at an apprentice's file
   function persist() {
@@ -531,7 +546,7 @@ PT.store = (() => {
   // The Instructor Dashboard calls viewOnly() so nothing it does is ever written over this browser's saved project.
   function viewOnly(on = true) { readOnly = on; }
 
-  return { isInstructor, TEAM_COLLS, dropTeam, markTeamDeleted, shareFor, mergeTeam, setTeamMember, teamCheck, importMyWork, takeMyWork, newTeamProject, takeChanges, teamProjectIds, applyRfiAnswers, viewOnly, swap, init, get, pid, project, list, find, add, update, remove, nextNumber, onChange, emit, log, event, newProject, resetAll, exportJSON, importJSON, today };
+  return { kvPut, kvGet, isInstructor, TEAM_COLLS, dropTeam, markTeamDeleted, shareFor, mergeTeam, setTeamMember, teamCheck, importMyWork, takeMyWork, newTeamProject, takeChanges, teamProjectIds, applyRfiAnswers, viewOnly, swap, init, get, pid, project, list, find, add, update, remove, nextNumber, onChange, emit, log, event, newProject, resetAll, exportJSON, importJSON, today };
 })();
 
 

@@ -161,6 +161,7 @@ body:has(.modal-backdrop) #toasts { bottom: auto; top: 12px; right: 50%; transfo
 .canvas-wrap[data-tool=select]:active { cursor: grabbing; }
 .stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; box-shadow: 0 4px 30px rgba(0, 0, 0, .35); background: #fff; }
 .stage img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.stage canvas.sharp { position: absolute; pointer-events: none; user-select: none; } /* zoomed-in redraw of the part on screen */
 .stage svg { position: absolute; inset: 0; overflow: visible; }
 .canvas-wrap, .stage svg, .stage svg text { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
 .canvas-wrap[data-tool=select] .mk, .canvas-wrap[data-tool=select] .pin, .canvas-wrap[data-tool=select] .autolink { cursor: pointer; }

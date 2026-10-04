@@ -404,6 +404,68 @@ test("practice plans load in one tap as their own project, with a practice exerc
   expect(page.errors).toEqual([]);
 });
 
+test("zooming in redraws the sheet sharp (practice plans from the PDF, sample sheets from the drawing)", async ({ page }) => {
+  test.setTimeout(180000);
+  const sharp = () => page.evaluate(() => {
+    const V = PT.viewer.current(), s = V.sharp, el = document.querySelector("#stage canvas.sharp"); if (!s || !el) return null;
+    const r = document.querySelector("#canvasWrap").getBoundingClientRect();
+    const d = el.getContext("2d").getImageData(0, 0, el.width, el.height).data; let dark = 0;
+    for (let i = 0; i < d.length; i += 16) if (d[i] < 90) dark++;
+    return { n: document.querySelectorAll("#stage canvas.sharp").length, perUnit: s.k / V.z, dark,
+      covers: s.x0 <= Math.max(0, -V.tx / V.z) + 1 && s.y0 <= Math.max(0, -V.ty / V.z) + 1 && s.x1 >= Math.min(V.ver.w, (r.width - V.tx) / V.z) - 1 && s.y1 >= Math.min(V.ver.h, (r.height - V.ty) / V.z) - 1,
+      under: el.nextElementSibling.id, pxPerUnit: s.k, picture: document.querySelector("#sheetImg").naturalWidth / V.ver.w };
+  });
+  const zoomIn = async (n) => { for (let i = 0; i < n; i++) await page.click("#zoomIn"); };
+
+  // built-in sample sheet: nothing extra when the whole sheet fits, a redraw when zoomed in
+  await page.goto(`/#/sheet/${await sheetId(page, "R-101")}`);
+  await expect.poll(() => page.evaluate(() => document.querySelector("#sheetImg").naturalWidth)).toBeGreaterThan(0);
+  await page.waitForTimeout(400);
+  expect(await sharp()).toBeNull();
+  await zoomIn(7);
+  await expect.poll(sharp).not.toBeNull();
+  let s = await sharp();
+  expect(s.n).toBe(1); expect(s.covers).toBe(true); expect(s.under).toBe("overlay"); expect(s.dark).toBeGreaterThan(50);
+  expect(s.perUnit).toBeGreaterThan(0.9);
+
+  // practice plans: the PDF is kept on the device and the part on screen is redrawn from it
+  await page.goto("/#/sheets"); await page.click("#ppBtn");
+  await expect.poll(() => page.evaluate(() => PT.store.list("sheets").length), { timeout: 150000 }).toBe(11);
+  expect(await page.evaluate(async () => (await PT.store.kvGet("practice-pdf")).byteLength)).toBeGreaterThan(1e6);
+  const before = await page.evaluate(() => JSON.stringify(PT.store.list("sheets").map((x) => [x.id, x.versions[0].w, x.versions[0].h])));
+  await page.goto(`/#/sheet/${await sheetId(page, "A101")}`);
+  await expect.poll(() => page.evaluate(() => document.querySelector("#sheetImg").naturalWidth)).toBeGreaterThan(0);
+  await zoomIn(8);
+  await expect.poll(sharp, { timeout: 20000 }).not.toBeNull();
+  await expect.poll(async () => (await sharp()).covers, { timeout: 20000 }).toBe(true);
+  s = await sharp();
+  expect(s.pxPerUnit).toBeGreaterThan(s.picture * 1.5); // more detail than the stored picture
+  expect(s.dark).toBeGreaterThan(50); expect(s.under).toBe("overlay");
+  // pan: the redraw follows
+  const box = await page.locator("#canvasWrap").boundingBox();
+  await page.mouse.move(box.x + 400, box.y + 300); await page.mouse.down(); await page.mouse.move(box.x + 100, box.y + 120, { steps: 6 }); await page.mouse.up();
+  await expect.poll(async () => (await sharp())?.covers, { timeout: 20000 }).toBe(true);
+  // fit: practice sheets are still drawn from the PDF (the stored picture is low resolution), at the size on screen
+  await page.click("#zoomFit");
+  await expect.poll(async () => { const x = await sharp(); return !!x && x.covers && x.perUnit > 0.9 && x.perUnit < 1.1; }, { timeout: 20000 }).toBe(true);
+  // comparing versions shows a different picture, so the redraw is taken away
+  await page.evaluate(() => { PT.viewer.current().compare = { url: "x" }; document.querySelector("#zoomIn").click(); });
+  await expect.poll(sharp).toBeNull();
+  await page.evaluate(() => { PT.viewer.current().compare = null; document.querySelector("#zoomIn").click(); });
+  await expect.poll(sharp, { timeout: 20000 }).not.toBeNull();
+
+  // a device that loaded the plans before this update has no PDF saved: it is fetched again quietly
+  await page.evaluate(() => new Promise((res) => { const q = indexedDB.open("plan-trainer", 1); q.onsuccess = () => { const tx = q.result.transaction("kv", "readwrite"); tx.objectStore("kv").delete("practice-pdf"); tx.oncomplete = res; }; }));
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => !!document.querySelector("#sheetImg")?.naturalWidth)).toBe(true);
+  await zoomIn(8);
+  await expect.poll(sharp, { timeout: 60000 }).not.toBeNull();
+  await expect.poll(() => page.evaluate(async () => (await PT.store.kvGet("practice-pdf"))?.byteLength || 0), { timeout: 20000 }).toBeGreaterThan(1e6);
+  // sheet sizes (and so every markup and measurement) are untouched
+  expect(await page.evaluate(() => JSON.stringify(PT.store.list("sheets").map((x) => [x.id, x.versions[0].w, x.versions[0].h])))).toBe(before);
+  expect(page.errors).toEqual([]);
+});
+
 test("apprentices can't answer RFIs sent to the instructor; duplicate answers don't repeat", async ({ page }) => {
   await page.goto("/#/settings"); await page.fill("#prof input[name=name]", "Luis Herrera"); await page.click("#prof button.btn-primary");
   await page.goto("/#/rfis"); await page.click("#newBtn");
