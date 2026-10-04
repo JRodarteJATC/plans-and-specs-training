@@ -10,7 +10,7 @@ missing termination bar screws, loose pipe boot clamp, base flashing under 8", m
 term bar, drain clamping ring bolts loose, debris on membrane, below-grade lap not rolled, etc.
 
 1. Take a photo of the mock-up (or use **R-101** and pretend Roof Area B is the mock-up).
-2. Walk it with a phone or tablet and a **seam probe**. For each defect create a **Punch** item
+2. Walk it with a tablet and a **seam probe**. For each defect create a **Punch** item
    pinned on the sheet: specific title, location, close-up + context photo, assignee, due date,
    priority.
 3. Swap lists with another apprentice. Fix (or pretend to fix) their items, add a "fixed" photo and a

@@ -7,7 +7,7 @@ Instructor initials each skill when the apprentice demonstrates it **without hel
 | # | Skill | Date | Initials |
 |---|---|---|---|
 | 1 | Open a project and find a sheet by number, title and discipline | | |
-| 2 | Zoom, pan and fit on computer **and** tablet/phone | | |
+| 2 | Zoom, pan and fit on computer **and** tablet | | |
 | 3 | Identify the current version and revision of a sheet | | |
 | 4 | Follow a detail callout to a roof/waterproofing detail and return | | |
 | 5 | Find and search a roofing spec section | | |

@@ -52,7 +52,7 @@ PT.training = (() => {
       { id: "daily", title: "Submit a daily report with manpower", how: "Reports → + Daily Report → add at least one crew row → Submit.", check: () => ev("report_submitted", (e) => e.kind === "Daily Report" && e.crew > 0) },
       { id: "toolbox", title: "Submit a toolbox talk with attendees", how: "Reports → + Toolbox Talk → list attendees → Submit.", check: () => ev("report_submitted", (e) => e.kind === "Toolbox Talk" && e.attendees > 0) },
       { id: "compare", title: "Compare two revisions of R-101", how: "Open R-101 → ⇄ Compare → pick Rev 0. Find what ASI-01 added (blue).", check: () => ev("compare") },
-      { id: "upload", title: "Upload your own sheet or new version", how: "Sheets → Upload (a phone photo of a drawing or any PDF works).", check: () => ev("upload_sheet") || ev("upload_version") },
+      { id: "upload", title: "Upload your own sheet or new version", how: "Sheets → Upload (a photo of a drawing or any PDF works).", check: () => ev("upload_sheet") || ev("upload_version") },
       { id: "team_add", title: "Add a team member", how: "Team → + Invite member (e.g. your journeyman or the manufacturer's rep).", check: () => ev("team_add") },
       { id: "backup", title: "Export your backup for the instructor", how: "Settings → Export backup (.json). Turn this file in.", check: () => ev("export", (e) => e.what === "backup") },
     ] },
